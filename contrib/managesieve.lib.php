@@ -73,7 +73,7 @@ define ("EC_UNKNOWN", 255);
  * @todo Have timing mechanism when port problems arise.
  * @todo Provide better error diagnostics. 
  */
-class sieve {
+class Sieve {
   var $host;
   var $port;
   var $user;
@@ -133,13 +133,13 @@ class sieve {
     unset($this->error_raw);
 
     $this->line=fgets($this->fp,1024);
-    $this->token = split(" ", $this->line, 2);
+    $this->token = preg_split("/ /", $this->line, 2);
 
     if($this->token[0] == "NO"){
         /* we need to try and extract the error code from here.  There are two possibilites: one, that it will take the form of:
            NO ("yyyyy") "zzzzzzz" or, two, NO {yyyyy} "zzzzzzzzzzz" */
         $this->x = 0;
-        list($this->ltoken, $this->mtoken, $this->rtoken) = split(" ", $this->line." ", 3);
+        list($this->ltoken, $this->mtoken, $this->rtoken) = preg_split("/ ", $this->line." /", 3);
         if($this->mtoken[0] == "{"){
             while($this->mtoken[$this->x] != "}" or $this->err_len < 1){
                 $this->err_len = substr($this->mtoken, 1, $this->x);
@@ -227,7 +227,7 @@ class sieve {
     	   atleast true for timsieved as it sits in 2.1.16, if someone has a 
     	   BYE (REFERRAL ...) example for later timsieved please forward it to 
     	   me and I'll code it in proper-like! - mloftis@wgops.com */
-    	$this->reftok = split(" ", $this->token[1], 3);
+    	$this->reftok = preg_split("/ /", $this->token[1], 3);
     	$this->refsv = substr($this->reftok[1], 0, -2);
     	$this->refsv = substr($this->refsv, 1);
 
@@ -245,9 +245,9 @@ class sieve {
     	   end by now!  */
     	fclose($this->fp);
     	
-    	if( sieve::sieve_login() ) {
+    	if( Sieve::sieve_login() ) {
     		fputs($this->fp, $this->lastcmd);
-    		return sieve::get_response();
+    		return Sieve::get_response();
     	} /* end good case happy ending */
     	else{
     		/* what to do?  login failed, should we punt and die? or log back into the referrer?
@@ -306,7 +306,7 @@ class sieve {
    * rights to admin the user.  This is to allow admins to edit/view users
    * scripts without having to know the user's password.  Very handy.
    */
-  function sieve($host, $port, $user, $pass, $auth="", $auth_types='PLAIN') {
+  function __construct($host, $port, $user, $pass, $auth="", $auth_types='PLAIN') {
     $this->host=$host;
     $this->port=$port;
     $this->user=$user;
@@ -322,7 +322,7 @@ class sieve {
     $this->tmpfile="";
     $this->fh=0;
     $this->len=0;
-    $this->capabilities="";
+    $this->capabilities=[];
     $this->loggedin=false;
     $this->error= "";
     $this->error_raw="";
@@ -429,11 +429,11 @@ class sieve {
     //response.  They repsond as follows: "Cyrus timsieved v1.0.0" "SASL={PLAIN,........}"
     //So, if we see IMPLEMENTATION in the first line, then we are done.
 
-    if(ereg("IMPLEMENTATION",$this->line))
+    if(preg_match("/IMPLEMENTATION/",$this->line) > 0)
     {
       //we're on the Cyrus V2 or Cyrus V3 sieve server
-      while(sieve::status($this->line) == F_DATA){
-          $this->item = sieve::parse_for_quotes($this->line);
+      while(Sieve::status($this->line) == F_DATA){
+          $this->item = Sieve::parse_for_quotes($this->line);
 
           if(strcmp($this->item[0], "IMPLEMENTATION") == 0)
               $this->capabilities["implementation"] = $this->item[1];
@@ -445,11 +445,15 @@ class sieve {
               } else {
                   $this->cap_type="auth";            
               }
-              $this->modules = split(" ", $this->item[1]);
+              $this->modules = preg_split("/ /", $this->item[1]);
               if(is_array($this->modules)){
-                  foreach($this->modules as $this->module)
-                      $this->capabilities[$this->cap_type][$this->module]=true;
-              } /* end if */
+                  foreach($this->modules as $this->module) {
+                      if ( ! isset($this->capabilities[$this->cap_type])) {
+                          $this->capabilities[$this->cap_type] = [];
+                      }
+                      $this->capabilities[$this->cap_type][$this->module] = true;
+                  }
+              }
               elseif(is_string($this->modules))
                   $this->capabilites[$this->cap_type][$this->modules]=true;
           }    
@@ -471,7 +475,7 @@ class sieve {
         $this->cap_type="auth";
        
         //break apart at the "Cyrus timsieve...." "SASL={......}"
-        $this->item = sieve::parse_for_quotes($this->line);
+        $this->item = Sieve::parse_for_quotes($this->line);
 
         $this->capabilities["implementation"] = $this->item[0];
 
@@ -490,7 +494,7 @@ class sieve {
             $this->capabilites[$this->cap_type][$this->module]=true;
     }
 
-    if(sieve::status($this->line) == F_NO){		//here we should do some returning of error codes?
+    if(Sieve::status($this->line) == F_NO){		//here we should do some returning of error codes?
         $this->error=EC_UNKNOWN;
         $this->error_raw = "Server not allowing connections.";
         return false;
@@ -524,7 +528,7 @@ class sieve {
     }
     
     /* call our authentication program */
-    return sieve::authenticate();
+    return Sieve::authenticate();
   }
 
   /**
@@ -561,7 +565,7 @@ class sieve {
     
     $this->lastcmd = 'PUTSCRIPT "'.$scriptname.'" {'.$len.'+}'."\r\n".$this->script."\r\n";
     fputs($this->fp, $this->lastcmd);
-    return sieve::get_response();
+    return Sieve::get_response();
 
   }  
   
@@ -588,7 +592,7 @@ class sieve {
         
     $this->lastcmd = "HAVESPACE \"$scriptname\" $scriptsize\r\n";
     fputs($this->fp, $this->lastcmd);
-    return sieve::get_response();
+    return Sieve::get_response();
   }  
 
   /**
@@ -603,7 +607,7 @@ class sieve {
     
 		$this->lastcmd = "SETACTIVE \"$scriptname\"\r\n";
     fputs($this->fp, $this->lastcmd);   
-    return sieve::get_response();
+    return Sieve::get_response();
 
   }
   
@@ -623,7 +627,7 @@ class sieve {
         
     $this->lastcmd = "GETSCRIPT \"$scriptname\"\r\n";
     fputs($this->fp, $this->lastcmd);
-    return sieve::get_response();
+    return Sieve::get_response();
   }
 
   /**
@@ -642,7 +646,7 @@ class sieve {
 		$this->lastcmd = "DELETESCRIPT \"$scriptname\"\r\n";
     fputs($this->fp, $this->lastcmd);    
 
-    return sieve::get_response();
+    return Sieve::get_response();
   }
 
   
@@ -658,11 +662,11 @@ class sieve {
   function sieve_listscripts() { 
   	 $this->lastcmd = "LISTSCRIPTS\r\n";
      fputs($this->fp, $this->lastcmd); 
-     sieve::get_response();		//should always return true, even if there are no scripts...
+     Sieve::get_response();		//should always return true, even if there are no scripts...
      if(isset($this->found_script) and $this->found_script)
          return true;
      else{
-         $this->error=EC_NOSCRIPTS;	//sieve::getresponse has no way of telling wether a script was found...
+         $this->error=EC_NOSCRIPTS;	//Sieve::getresponse has no way of telling wether a script was found...
          $this->error_raw="No scripts found for this account.";
          return false;
      }
@@ -709,10 +713,10 @@ class sieve {
             fputs($this->fp, "$auth\r\n");
 
             $this->line=fgets($this->fp,1024);		
-            while(sieve::status($this->line) == F_DATA)
+            while(Sieve::status($this->line) == F_DATA)
                $this->line=fgets($this->fp,1024);
 
-             if(sieve::status($this->line) == F_NO)
+             if(Sieve::status($this->line) == F_NO)
                return false;
              $this->loggedin=true;
                return true;    
@@ -758,10 +762,10 @@ class sieve {
 	     fputs($this->fp, "\"$response\"\r\n");
  	
              $this->line = fgets($this->fp, 1024);
-             while(sieve::status($this->line) == F_DATA)
+             while(Sieve::status($this->line) == F_DATA)
                 $this->line = fgets($this->fp,1024);
 
-             if(sieve::status($this->line) == F_NO)
+             if(Sieve::status($this->line) == F_NO)
                return false;
              $this->loggedin = TRUE;
                return TRUE;    
@@ -784,10 +788,10 @@ class sieve {
 	     fputs($this->fp, "\"$response\"\r\n");
 	     
              $this->line = fgets($this->fp, 1024);		
-             while(sieve::status($this->line) == F_DATA)
+             while(Sieve::status($this->line) == F_DATA)
                 $this->line = fgets($this->fp,1024);
 
-             if(sieve::status($this->line) == F_NO)
+             if(Sieve::status($this->line) == F_NO)
                return false;
              $this->loggedin = TRUE;
                return TRUE;    
@@ -804,11 +808,11 @@ class sieve {
  	     fputs($this->fp, "$pass\r\n");
  
 	     $this->line=fgets($this->fp,1024);
- 	     while(sieve::status($this->line) == F_HEAD ||
- 	           sieve::status($this->line) == F_DATA)
+ 	     while(Sieve::status($this->line) == F_HEAD ||
+ 	           Sieve::status($this->line) == F_DATA)
  	         $this->line=fgets($this->fp,1024);
  	
- 	     if(sieve::status($this->line) == F_NO)
+ 	     if(Sieve::status($this->line) == F_NO)
  	         return false;
  	     $this->loggedin=true;
  	     return true;
@@ -838,7 +842,7 @@ class sieve {
         $this->loggedin = false;
         fclose($this->fp);
 
-        if( sieve::sieve_login() ) {
+        if( Sieve::sieve_login() ) {
             return $this->sieve_get_capability();
         } else {
             $this->loggedin = false;
@@ -849,8 +853,8 @@ class sieve {
         }
     }
 
-    while(sieve::status($this->line) == F_DATA){
-       $this->item = sieve::parse_for_quotes($this->line);
+    while(Sieve::status($this->line) == F_DATA){
+       $this->item = Sieve::parse_for_quotes($this->line);
 
        if(strcmp($this->item[0], "IMPLEMENTATION") == 0) {
            $this->capabilities["implementation"] = $this->item[1];
@@ -864,7 +868,7 @@ class sieve {
                   $cap_type="auth";            
               }
 
-              $this->modules = split(' ', $this->item[1]);
+              $this->modules = preg_split('/ /', $this->item[1]);
               if(is_array($this->modules)){
                   foreach($this->modules as $m) {
                       $this->capabilities[$cap_type][$m]=true;
