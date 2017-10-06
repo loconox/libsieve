@@ -1,6 +1,6 @@
-<?php namespace Sieve;
+<?php
 
-require_once('SieveToken.php');
+namespace Sieve;
 
 use Exception;
 
@@ -8,35 +8,28 @@ class SieveException extends Exception
 {
     protected $token_;
 
-    public function __construct(SieveToken $token, $arg)
+    public function __construct(Token $token, $arg)
     {
-        $message = 'undefined sieve exception';
+        $message      = 'undefined sieve exception';
         $this->token_ = $token;
 
-        if (is_string($arg))
-        {
+        if (is_string($arg)) {
             $message = $arg;
-        }
-        else
-        {
-            if (is_array($arg))
-            {
-                $type = SieveToken::typeString(array_shift($arg));
-                foreach($arg as $t)
-                {
-                    $type .= ' or '. SieveToken::typeString($t);
+        } else {
+            if (is_array($arg)) {
+                $type = Token::typeString(array_shift($arg));
+                foreach ($arg as $t) {
+                    $type .= ' or '.Token::typeString($t);
                 }
-            }
-            else
-            {
-                $type = SieveToken::typeString($arg);
+            } else {
+                $type = Token::typeString($arg);
             }
 
-            $tokenType = SieveToken::typeString($token->type);
-            $message = "$tokenType where $type expected near ". $token->text;
+            $tokenType = Token::typeString($token->type);
+            $message   = "$tokenType where $type expected near ".$token->text;
         }
 
-        parent::__construct('line '. $token->line .": $message");
+        parent::__construct('line '.$token->line.": $message");
     }
 
     public function getLineNo()
