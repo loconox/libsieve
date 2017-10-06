@@ -2,7 +2,7 @@
 
 error_reporting (E_ALL | E_STRICT);
 
-include_once '../lib/class.parser.php';
+include_once '../lib/SieveParser.php';
 
 $filename = 'script.siv';
 $fd = fopen($filename, 'r');
@@ -14,7 +14,7 @@ $text = 'success';
 
 try
 {
-	$parser = new Parser();
+	$parser = new \Sieve\SieveParser();
 	$parser->parse($script);
 }
 catch (Exception $e)

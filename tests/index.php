@@ -1,6 +1,6 @@
 <?php
 
-include_once '../lib/class.parser.php';
+include_once '../lib/SieveParser.php';
 include_once '../contrib/managesieve.lib.php';
 
 define('MANAGESIEVE_HOST', 'localhost');
@@ -20,7 +20,7 @@ foreach (array('good', 'bad') as $dir)
 		if (preg_match('/(.+)\.siv$/', $file, $match)) {
 			$script = file_get_contents("$dir/$file");
 
-			$sieved = new sieve(MANAGESIEVE_HOST, 2000, MANAGESIEVE_USER, MANAGESIEVE_PASS);
+			$sieved = new Sieve(MANAGESIEVE_HOST, 4190, MANAGESIEVE_USER, MANAGESIEVE_PASS);
 			$sieved->sieve_login();
 			if ($sieved->sieve_sendscript("test.siv", $script)) {
 				$sieved_bgcolor = $dir == 'good' ? 'lightgreen' : 'tomato';
@@ -34,7 +34,7 @@ foreach (array('good', 'bad') as $dir)
 			}
 
 			try {
-				$parser = new Parser();
+				$parser = new \Sieve\SieveParser();
 				$parser->parse($script);
 
 				$parser_bgcolor = $dir == 'good' ? 'lightgreen' : 'tomato';
