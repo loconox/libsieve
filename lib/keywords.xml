@@ -6,7 +6,7 @@
 	<matchtype name="contains" />
 	<matchtype name="matches" />
 	<matchtype name="value">
-		<parameter type="string" name="operator" regex="(gt|ge|eq|le|lt)" />
+		<parameter type="string" name="operator" regex="(gt|ge|eq|le|lt|ne)" />
 	</matchtype>
 
 
