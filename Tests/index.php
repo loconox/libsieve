@@ -29,8 +29,6 @@ spl_autoload_register(function ($class) {
     }
 });
 
-include_once '../contrib/managesieve.lib.php';
-
 define('MANAGESIEVE_HOST', 'localhost');
 define('MANAGESIEVE_USER', 'heiko');
 define('MANAGESIEVE_PASS', 'heiko');
@@ -48,7 +46,7 @@ foreach (array('good', 'bad') as $dir)
 		if (preg_match('/(.+)\.siv$/', $file, $match)) {
 			$script = file_get_contents("$dir/$file");
 
-			$sieved = new Sieve(MANAGESIEVE_HOST, 4190, MANAGESIEVE_USER, MANAGESIEVE_PASS);
+			$sieved = new \LibSieve\ManageSieve(MANAGESIEVE_HOST, 4190, MANAGESIEVE_USER, MANAGESIEVE_PASS);
 			$sieved->sieve_login();
 			if ($sieved->sieve_sendscript("test.siv", $script)) {
 				$sieved_bgcolor = $dir == 'good' ? 'lightgreen' : 'tomato';
@@ -62,7 +60,7 @@ foreach (array('good', 'bad') as $dir)
 			}
 
 			try {
-				$parser = new \Sieve\Parser();
+				$parser = new \LibSieve\Parser();
 				$parser->parse($script);
 
 				$parser_bgcolor = $dir == 'good' ? 'lightgreen' : 'tomato';

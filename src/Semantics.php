@@ -1,6 +1,6 @@
 <?php
 
-namespace Sieve;
+namespace LibSieve;
 
 class Semantics
 {

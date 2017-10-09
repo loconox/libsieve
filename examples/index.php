@@ -5,10 +5,10 @@ error_reporting (E_ALL | E_STRICT);
 spl_autoload_register(function ($class) {
 
     // project-specific namespace prefix
-    $prefix = 'Sieve\\';
+    $prefix = 'LibSieve\\';
 
     // base directory for the namespace prefix
-    $base_dir = __DIR__ . '/../lib/';
+    $base_dir = __DIR__ . '/../src/';
 
     // does the class use the namespace prefix?
     $len = strlen($prefix);
@@ -41,7 +41,7 @@ $text = 'success';
 
 try
 {
-	$parser = new \Sieve\Parser();
+	$parser = new \LibSieve\Parser();
 	$parser->parse($script);
 }
 catch (Exception $e)

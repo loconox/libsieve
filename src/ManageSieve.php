@@ -1,4 +1,5 @@
 <?php
+
 /**
  * sieve-php.lib.php
  *
@@ -21,6 +22,9 @@
  * @copyright Copyright 2002-2003, Dan Ellis, All Rights Reserved.  
  * @version 0.1.0
  */
+
+
+namespace LibSieve;
 
 /**
  * Constants
@@ -73,7 +77,7 @@ define ("EC_UNKNOWN", 255);
  * @todo Have timing mechanism when port problems arise.
  * @todo Provide better error diagnostics. 
  */
-class Sieve {
+class ManageSieve {
   var $host;
   var $port;
   var $user;

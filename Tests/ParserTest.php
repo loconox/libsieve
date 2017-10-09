@@ -1,6 +1,8 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
+use LibSieve\Parser;
+use LibSieve\Tree;
 
 class ParserTest extends TestCase
 {
@@ -10,20 +12,20 @@ class ParserTest extends TestCase
      */
     public function testParseGood($script)
     {
-        $parser = new \Sieve\Parser();
+        $parser = new Parser();
         $parser->parse($script);
-        $this->assertInstanceOf(\Sieve\Tree::class, $parser->GetParseTree());
+        $this->assertInstanceOf(Tree::class, $parser->GetParseTree());
         $parser->parse($parser->getScriptText());
-        $this->assertInstanceOf(\Sieve\Tree::class, $parser->GetParseTree());
+        $this->assertInstanceOf(Tree::class, $parser->GetParseTree());
     }
 
     /**
      * @dataProvider badScriptsProvider
-     * @expectedException \Sieve\SieveException
+     * @expectedException \LibSieve\SieveException
      */
     public function testParseBad($script)
     {
-        $parser = new \Sieve\Parser();
+        $parser = new Parser();
         $parser->parse($script);
     }
 

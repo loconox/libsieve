@@ -1,10 +1,9 @@
 <?php
 
-namespace Sieve;
+namespace LibSieve;
 
-use Exception;
 
-class SieveException extends Exception
+class SieveException extends \Exception
 {
     protected $token_;
 
