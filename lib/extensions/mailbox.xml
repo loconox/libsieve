@@ -6,9 +6,16 @@
         <parameter type="stringlist" name="mailbox-names" />
     </test>
 
-    <command name="fileinto">
+    <command name="fileinto" overrides="true">
         <parameter type="tag" name="create" regex="create" occurrence="optional" />
         <parameter type="string" name="folder" />
     </command>
 
+    <test name="metadata">
+        <parameter type="matchtype"  occurrence="optional" />
+        <parameter type="comparator"  occurrence="optional" />
+        <parameter type="string" name="mailbox" />
+        <parameter type="string" name="annotation-name" />
+        <parameter type="stringlist" name="key-list" />
+    </test>
 </extension>

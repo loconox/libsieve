@@ -4,3 +4,5 @@ if mailboxexists "Partners" {
 } else {
    reject "This message was not accepted by the Mailstore";
 }
+
+fileinto :create "Partners";
