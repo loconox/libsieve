@@ -38,7 +38,7 @@ class KeywordRegistry
                 default:
                     trigger_error(
                         'Unsupported keyword type "'.$keyword->getName()
-                        .'" in file "keywords/'.basename($file).'"'
+                        .'" in file "keywords.xml"'
                     );
 
                     return;

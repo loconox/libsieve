@@ -29,6 +29,8 @@ class Token implements Dumpable
     const Unparsed = 0x2200; // Comment | Whitespace
     const TestList = 0x8020; // Identifier | LeftParenthesis
 
+    const WHITESPACE = ' ';
+
     public $type;
     public $text;
     public $line;
@@ -47,7 +49,7 @@ class Token implements Dumpable
 
     public function text()
     {
-        return $this->text;
+        return $this->text.Token::WHITESPACE;
     }
 
     public function is($type)

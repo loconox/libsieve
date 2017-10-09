@@ -1,0 +1,6 @@
+require ["fileinto", "reject", "mailbox"];
+if mailboxexists "Partners" {
+   fileinto "Partners";
+} else {
+   reject "This message was not accepted by the Mailstore";
+}
