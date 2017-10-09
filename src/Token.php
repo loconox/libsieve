@@ -31,10 +31,28 @@ class Token implements Dumpable
 
     const WHITESPACE = ' ';
 
+    /**
+     * @var string
+     */
     public $type;
+
+    /**
+     * @var string
+     */
     public $text;
+
+    /**
+     * @var int
+     */
     public $line;
 
+    /**
+     * Token constructor.
+     *
+     * @param string $type
+     * @param string $text
+     * @param int $line
+     */
     public function __construct($type, $text, $line)
     {
         $this->text = $text;
@@ -47,16 +65,39 @@ class Token implements Dumpable
         return '<'.Token::escape($this->text).'> type:'.Token::typeString($this->type).' line:'.$this->line;
     }
 
+
     public function text()
     {
-        return $this->text.Token::WHITESPACE;
+        $whitespace = Token::WHITESPACE;
+
+        $terminators = [
+            Token::Semicolon,
+            Token::BlockStart,
+            Token::BlockEnd,
+        ];
+
+        if (in_array($this->type, $terminators)) {
+            $whitespace = "\n";
+        }
+
+        return $this->text.$whitespace;
     }
 
+    /**
+     * @param $type
+     *
+     * @return bool
+     */
     public function is($type)
     {
         return (bool)($this->type & $type);
     }
 
+    /**
+     * @param $type
+     *
+     * @return string
+     */
     public static function typeString($type)
     {
         switch ($type) {
