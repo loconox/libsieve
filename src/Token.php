@@ -68,19 +68,7 @@ class Token implements Dumpable
 
     public function text()
     {
-        $whitespace = Token::WHITESPACE;
-
-        $terminators = [
-            Token::Semicolon,
-            Token::BlockStart,
-            Token::BlockEnd,
-        ];
-
-        if (in_array($this->type, $terminators)) {
-            $whitespace = "\n";
-        }
-
-        return $this->text.$whitespace;
+        return $this->text;
     }
 
     /**

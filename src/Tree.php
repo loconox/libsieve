@@ -119,7 +119,20 @@ class Tree
 
         for ($i = 0; $i < count($childs); ++$i) {
             $child_node  = $this->nodes_[$childs[$i]];
-            $this->dump_ .= $child_node->text();
+            $text = $child_node->text();
+            $whitespace = Token::WHITESPACE;
+            $terminators = [
+                Token::Semicolon,
+                Token::BlockStart,
+                Token::BlockEnd,
+            ];
+
+            if (in_array($child_node->type, $terminators)) {
+                $whitespace = "\n";
+            }
+
+            $this->dump_ .= $text.$whitespace;
+
             $this->childText_($childs[$i]);
         }
     }
